@@ -11,7 +11,7 @@ OBJDUMP    ?= avr-objdump
 OBJCOPY    ?= avr-objcopy
 DEBUGFLAGS ?= -Os
 CC         = avr-gcc
-CFLAGS = -mmcu=$(DEVICE) -DF_CPU=$(CLOCK) $(DEBUGFLAGS)
+CFLAGS = -std=c99 -mmcu=$(DEVICE) -DF_CPU=$(CLOCK) $(DEBUGFLAGS)
 
 AVRDUDE = avrdude $(PORT) -p $(DEVICE) -c $(AVR_PROGRAMMER)
 
