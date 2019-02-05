@@ -32,8 +32,9 @@ void setup() {
     //! Select clk/64 prescaler (CS = 0b011)
     TCCR0B = _BV(CS01)  | _BV(CS00);
 
-    serial_begin();
     init_millis();
+    measure_begin();
+    serial_begin();
 
     sei();
 }
@@ -42,17 +43,27 @@ int main() {
     MOTOR m1,
           m2;
     timer_t now, next_measure;
-    distance_t distance;
     char buf[40];
 
     setup();
 
-    motor_new(&m1, &MOTORPORT, &MLEFTOCR, MLEFTDIR, false);
-    motor_new(&m2, &MOTORPORT, &MRIGHTOCR, MRIGHTDIR, true);
+    motor_new(&m1, &MOTORPORT, &MLEFTOCR, MLEFTDIR, true);
+    motor_new(&m2, &MOTORPORT, &MRIGHTOCR, MRIGHTDIR, false);
 
     while(1) {
-        sprintf(buf, "millis: %lu", millis());
-        serial_println(buf);
-        _delay_ms(1000);
+        uint8_t cm;
+
+        cm = echo_duration/58;
+
+        if (cm < 30) {
+            motor_forward(&m1, 127);
+            motor_forward(&m2, 127);
+        } else if (cm > 35) {
+            motor_reverse(&m1, 127);
+            motor_reverse(&m2, 127);
+        } else {
+            motor_stop(&m1);
+            motor_stop(&m2);
+        }
     }
 }
