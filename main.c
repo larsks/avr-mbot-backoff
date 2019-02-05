@@ -19,8 +19,7 @@
 #define MLEFTOCR  (OCR0A)           //!< Left motor OCR register
 #define MRIGHTOCR (OCR0B)           //!< Right motor OCR register
 
-uint16_t counter;
-
+#define BACKOFF_DISTANCE 25
 
 void setup() {
     //! Configure motor pins as outputs.
@@ -55,10 +54,10 @@ int main() {
 
         cm = echo_duration/58;
 
-        if (cm < 30) {
+        if (cm < BACKOFF_DISTANCE-2) {
             motor_forward(&m1, 127);
             motor_forward(&m2, 127);
-        } else if (cm > 35) {
+        } else if (cm > BACKOFF_DISTANCE+2) {
             motor_reverse(&m1, 127);
             motor_reverse(&m2, 127);
         } else {
