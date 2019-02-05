@@ -54,15 +54,18 @@ int main() {
 
         cm = echo_duration/58;
 
-        if (cm < BACKOFF_DISTANCE-2) {
+        if (cm < BACKOFF_DISTANCE-1) {
             motor_forward(&m1, 127);
             motor_forward(&m2, 127);
-        } else if (cm > BACKOFF_DISTANCE+2) {
+            PORTB &= ~_BV(PORTB5);
+        } else if (cm > BACKOFF_DISTANCE+1) {
             motor_reverse(&m1, 127);
             motor_reverse(&m2, 127);
+            PORTB &= ~_BV(PORTB5);
         } else {
             motor_stop(&m1);
             motor_stop(&m2);
+            PORTB |= _BV(PORTB5);
         }
     }
 }
