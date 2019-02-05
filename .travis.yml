@@ -1,0 +1,22 @@
+---
+dist: xenial
+sudo: false
+
+language: c
+
+notifications:
+    email: false
+
+branches:
+  except:
+    - gh-pages
+
+addons:
+  apt:
+    packages:
+      - doxygen
+      - gcc-avr
+      - avr-libc
+
+script:
+  - make
