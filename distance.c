@@ -22,6 +22,26 @@ void measure_begin() {
 }
 
 // fires every 1024us, or approximately every 1 ms.
+/**
+ *
+ * ## Timing diagram
+ *
+ *     >10uS pulse
+ *     |---|
+ *     |   |
+ *     ---+   +----
+ *
+ *     sensor sends ultrasonic pulses
+ *     |-| |-| |-| |-| |-| |-| |-| |-|
+ *     | | | | | | | | | | | | | | | |
+ *     -----------+ +-+ +-| +-+ +-+ +-+ +-+ +-+ +---
+ *
+ *
+ *     sensor sends return pulse to microcontroller |---------------------|
+ *     that is propportional to distance            |                     |
+ *     ---------------------------------------------+                     +---
+ *
+ */
 ISR(TIMER2_COMPA_vect) {
     static volatile uint8_t state;
 

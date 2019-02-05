@@ -22,4 +22,6 @@
 
 extern volatile timer_t echo_duration;
 
+void measure_begin(void);
+
 #endif // _distance
