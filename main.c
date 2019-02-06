@@ -69,12 +69,14 @@ int main() {
     pid_set_target(&p, BACKOFF_DISTANCE);
 
     while(1) {
+        timer_t raw;
         uint16_t cm;
         float output;
         uint8_t speed;
 
-        cm = echo_duration/58.0;
-        sprintf(buf, "duration: %u cm: %u", echo_duration, cm);
+        raw = get_echo_duration();
+        cm = raw/58;
+        sprintf(buf, "duration: %lu cm: %u", raw, cm);
         serial_println(buf);
         continue;
 

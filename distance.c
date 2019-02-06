@@ -3,6 +3,7 @@
 
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <util/atomic.h>
 
 #include "millis.h"
 #include "distance.h"
@@ -21,6 +22,16 @@ void measure_begin() {
     
     PCMSK1 |= _BV(PCINT9);
     PCICR |= _BV(PCIE1);
+}
+
+timer_t get_echo_duration() {
+    timer_t val;
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        val = echo_duration;
+    }
+
+    return val;
 }
 
 ISR(TIMER2_COMPA_vect) {
