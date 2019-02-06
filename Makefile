@@ -16,12 +16,10 @@ CFLAGS = -std=c99 -mmcu=$(DEVICE) -DF_CPU=$(CLOCK) $(DEBUGFLAGS)
 AVRDUDE = avrdude $(PORT) -p $(DEVICE) -c $(AVR_PROGRAMMER)
 
 OBJS = \
-	   main.o \
-	   motor.o \
+	   ustest.o \
 	   millis.o \
 	   serial.o \
-	   distance.o \
-	   pid.o
+	   distance.o
 
 %.s: %.c
 	$(CC) $(CFLAGS) -o $@ -S $<

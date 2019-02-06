@@ -10,7 +10,9 @@
 #define T_MEASURE_START 100
 
 volatile uint8_t t_measure = T_MEASURE_START;
-volatile timer_t echo_start, echo_end, echo_duration;
+volatile timer_t echo_start,
+         echo_end,
+         echo_duration;
 
 void measure_begin() {
     TIMSK2 |= _BV(OCIE2A);
@@ -21,27 +23,6 @@ void measure_begin() {
     PCICR |= _BV(PCIE1);
 }
 
-// fires every 1024us, or approximately every 1 ms.
-/**
- *
- * ## Timing diagram
- *
- *     >10uS pulse
- *     |---|
- *     |   |
- *     ---+   +----
- *
- *     sensor sends ultrasonic pulses
- *     |-| |-| |-| |-| |-| |-| |-| |-|
- *     | | | | | | | | | | | | | | | |
- *     -----------+ +-+ +-| +-+ +-+ +-+ +-+ +-+ +---
- *
- *
- *     sensor sends return pulse to microcontroller |---------------------|
- *     that is propportional to distance            |                     |
- *     ---------------------------------------------+                     +---
- *
- */
 ISR(TIMER2_COMPA_vect) {
     static volatile uint8_t state;
 
