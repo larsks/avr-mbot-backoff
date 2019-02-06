@@ -20,7 +20,8 @@ OBJS = \
 	   motor.o \
 	   millis.o \
 	   serial.o \
-	   distance.o
+	   distance.o \
+	   pid.o
 
 %.s: %.c
 	$(CC) $(CFLAGS) -o $@ -S $<
