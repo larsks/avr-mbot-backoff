@@ -33,15 +33,14 @@ ISR(TIMER2_COMPA_vect) {
 
     switch(state) {
         case 0:
+            PORTB &= ~_BV(PORTB4);
             break;
 
         case 1:
+            PORTB |= _BV(PORTB4);
             USDDR |= USPIN;
             USPORTREG |= USPIN;
-            state = 2;
-            break;
-
-        case 2:
+            _delay_us(20);
             USPORTREG &= ~(USPIN);
             USDDR &= ~(USPIN);
             state = 0;
@@ -50,10 +49,14 @@ ISR(TIMER2_COMPA_vect) {
 }
 
 ISR(PCINT1_vect) {
-    if (USPORTREG & USPIN) {
+    PINB = _BV(PORTB5);
+
+    if (USPINREG & USPIN) {
+        PORTB |= _BV(PORTB1);
         echo_start = micros();
         echo_end = 0;
     } else {
+        PORTB &= ~_BV(PORTB1);
         echo_end = micros();
         echo_duration = (echo_end - echo_start);
     }

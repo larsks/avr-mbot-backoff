@@ -19,8 +19,11 @@ int main() {
     measure_begin();
     sei();
 
+    DDRB = 0b111110;
+    PORTB = 0;
+
     while (1) {
-        sprintf(buf, "echo duration: %u", echo_duration);
+        sprintf(buf, "d: %u", echo_duration);
         serial_println(buf);
     }
 }

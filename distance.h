@@ -20,7 +20,7 @@
 #define USPIN     (_BV(PORTC1))     //!< Data pin for ultrasonic sensor
 #endif
 
-extern volatile timer_t echo_duration;
+extern volatile timer_t echo_duration, echo_start, echo_end;
 
 void measure_begin(void);
 
