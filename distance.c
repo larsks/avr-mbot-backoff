@@ -35,7 +35,6 @@ timer_t measure_value() {
     return _value;
 }
 
-
 /**
  *
  * ## Timing diagram

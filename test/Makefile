@@ -23,10 +23,12 @@ test: $(ALL_TESTS:.c=.ok)
 
 test_motor.elf: motor.o
 test_millis.elf: millis.o
+test_distance.elf: distance.o millis.o
 
 %.ok: %.elf
 	echo "$@"
 	python3 run_test.py $<
+	touch $@
 
 clean:
 	rm -f $(ALL_TESTS:.c=.o) $(ALL_TESTS:.c=.elf) $(ALL_TESTS:.c=.ok)

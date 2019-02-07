@@ -4,14 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define TEST_COMPLETE _BV(7)
+#define TEST_SUCCESS _BV(0)
+
 #define REPORT_SUCCESS {\
-    GPIOR0 = 0xFF; \
-    GPIOR1 = 0xFF; \
+    GPIOR0 = TEST_COMPLETE | TEST_SUCCESS; \
     }
 
 #define REPORT_FAILURE {\
-    GPIOR0 = 0xFF; \
-    GPIOR1 = 0x00; \
+    GPIOR0 = TEST_COMPLETE; \
     }
 
 #define ASSERT(expr, msg) if (!(expr)) { \

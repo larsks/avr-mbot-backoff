@@ -10,6 +10,9 @@ from pysimavr.swig.simavr import avr_gdb_init, cpu_Stopped
 GPIOR0 = 0x3E
 GPIOR1 = 0x4A
 
+TEST_COMPLETE = 1 << 7
+TEST_SUCCESS = 1
+
 
 @click.command()
 @click.option('-f', '--f_cpu', default=16000000)
@@ -28,7 +31,7 @@ def run_test(f_cpu, mcu, timeout, gdb, testfile):
         avr.state = cpu_Stopped
 
     t_start = time.time()
-    while avr.peek(GPIOR0) != 255:
+    while not avr.peek(GPIOR0) & TEST_COMPLETE:
         if timeout and time.time() - t_start > timeout:
             raise click.ClickException('Timeout')
         avr.step(100)
@@ -36,7 +39,7 @@ def run_test(f_cpu, mcu, timeout, gdb, testfile):
     if avr.uart.buffer:
         print(''.join(avr.uart.buffer))
 
-    sys.exit(0 if avr.peek(GPIOR1) == 255 else 1)
+    sys.exit(0 if avr.peek(GPIOR0) & TEST_SUCCESS else 1)
 
 
 if __name__ == '__main__':
