@@ -17,6 +17,16 @@ addons:
       - doxygen
       - gcc-avr
       - avr-libc
+      - python3-pip
+      - swig
+      - git
+      - python3-dev
+      - libelf-dev
+
+install:
+  - pip3 install --user click setuptools
+  - pip3 install --user git+https://github.com/ponty/pysimavr
 
 script:
   - make
+  - make -C test
