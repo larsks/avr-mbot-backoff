@@ -7,11 +7,24 @@ CLOCK          ?= 16000000
 
 PORT = -P $(AVR_PORT) $(if $(AVR_SPEED), -b $(AVR_SPEED))
 
+ifndef PID_P
+PID_P = 1
+endif
+
+ifndef PID_I
+PID_I=0
+endif
+
+ifndef PID_D
+PID_D=0
+endif
+
 OBJDUMP    ?= avr-objdump
 OBJCOPY    ?= avr-objcopy
 DEBUGFLAGS ?= -Os
 CC         = avr-gcc
-CFLAGS = -std=c99 -mmcu=$(DEVICE) -DF_CPU=$(CLOCK) $(DEBUGFLAGS)
+CPPFLAGS   = -DPID_P=$(PID_P) -DPID_I=$(PID_I) -DPID_D=$(PID_D) -DF_CPU=$(CLOCK)
+CFLAGS     = -std=c99 -mmcu=$(DEVICE) $(DEBUGFLAGS)
 
 AVRDUDE = avrdude $(PORT) -p $(DEVICE) -c $(AVR_PROGRAMMER)
 
@@ -32,7 +45,7 @@ OBJS = \
 all: $(PROGNAME).hex
 
 $(PROGNAME).elf: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 $(PROGNAME).hex: $(PROGNAME).elf
 	rm -f $(PROGNAME).hex
