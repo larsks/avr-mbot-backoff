@@ -1,11 +1,16 @@
+/**
+ * \file motor.h
+ *
+ * A simple motor control class.
+ */
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "motor.h"
 
 void motor_new(MOTOR *motor,
-        volatile uint8_t *port,
-        volatile uint8_t *speed_ocr,
+        uint8_t *port,
+        uint8_t *speed_ocr,
         uint8_t dir_pin,
         bool reversed) {
     motor->port      = port;
@@ -21,6 +26,13 @@ void motor_stop(MOTOR *motor) {
 }
 
 void motor_forward(MOTOR *motor, uint8_t speed) {
+    // If speed == 0, mark the motor as stopped
+    if (speed == 0) {
+        motor_stop(motor);
+        return;
+    }
+
+    // otherwise, mark the motor as running
     motor->running = true;
     *(motor->speed_ocr) = speed;
 
