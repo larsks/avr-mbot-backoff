@@ -14,8 +14,8 @@ int main() {
     sei();
 
     _delay_ms(100);
-    ASSERT(millis() >= 100, "millis() was too small");
-    ASSERT(micros() >= 100000, "micros() was too small");
+    ASSERT_GTE(millis(), 100, "millis() was too small");
+    ASSERT_GTE(micros(), 100000, "micros() was too small");
 
     REPORT_SUCCESS;
 }

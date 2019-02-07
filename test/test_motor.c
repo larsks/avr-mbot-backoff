@@ -16,7 +16,7 @@ int main() {
 
     motor_forward(m, 127);
     ASSERT(m->running, "motor did not start");
-    ASSERT(OCR0A == 127, "OCR0A did not have expected value (127)");
+    ASSERT_EQUAL(OCR0A, 127, "OCR0A did not have expected value");
     ASSERT(PORTD & _BV(PORTD4), "motor direction should be set");
 
     motor_stop(m);
