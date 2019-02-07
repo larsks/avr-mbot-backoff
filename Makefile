@@ -23,7 +23,8 @@ OBJDUMP    ?= avr-objdump
 OBJCOPY    ?= avr-objcopy
 DEBUGFLAGS ?= -Os
 CC         = avr-gcc
-CPPFLAGS   = -DPID_P=$(PID_P) -DPID_I=$(PID_I) -DPID_D=$(PID_D) -DF_CPU=$(CLOCK)
+PID_TERMS   = -DPID_P=$(PID_P) -DPID_I=$(PID_I) -DPID_D=$(PID_D)
+CPPFLAGS   = $(PID_TERMS) -IFastPID/src -DF_CPU=$(CLOCK)
 CFLAGS     = -std=c99 -mmcu=$(DEVICE) $(DEBUGFLAGS)
 
 AVRDUDE = avrdude $(PORT) -p $(DEVICE) -c $(AVR_PROGRAMMER)
@@ -34,7 +35,7 @@ OBJS = \
 	   millis.o \
 	   serial.o \
 	   distance.o \
-	   pid.o
+	   FastPID/src/FastPID.o
 
 %.s: %.c
 	$(CC) $(CFLAGS) -o $@ -S $<

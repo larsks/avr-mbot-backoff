@@ -1,0 +1,3 @@
+[submodule "FastPID"]
+	path = FastPID
+	url = https://github.com/larsks/FastPID

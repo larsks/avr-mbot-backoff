@@ -9,7 +9,7 @@
 #include "distance.h"
 #include "millis.h"
 #include "serial.h"
-#include "pid.h"
+#include "FastPID.h"
 
 #define abs(a) \
     ({ __typeof__ (a) _a = (a); \
@@ -26,9 +26,9 @@
 
 #define BACKOFF_DISTANCE_CM 20
 
-MOTOR m1,
-      m2;
-PID pid;
+MOTOR   m1,
+        m2;
+FastPID pid;
 
 void setup() {
     //! Configure motor pins as outputs.
