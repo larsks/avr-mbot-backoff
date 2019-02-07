@@ -27,7 +27,8 @@ volatile uint8_t t_measure = T_MEASURE_START;
 volatile timer_t
          echo_start,    //!< micros() at start of sensor response
          echo_end,      //!< micros() at end of sensor response
-         echo_duration; //!< duration of sensor response in ms
+         echo_duration, //!< duration of sensor response in ms
+         _acc[3];
 
 volatile bool measure_valid = false;
 
@@ -57,7 +58,14 @@ timer_t measure_value() {
     timer_t _value = 0;
 
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        _value = echo_duration;
+		if ((_acc[0] < _acc[1] && _acc[1] < _acc[2]) || (_acc[2] < _acc[1] && _acc[1] < _acc[0])) 
+			_value = _acc[1]; 
+
+		else if ((_acc[1] < _acc[0] && _acc[0] < _acc[2]) || (_acc[2] < _acc[0] && _acc[0] < _acc[1])) 
+			_value = _acc[0]; 
+
+		else
+			_value = _acc[2]; 
 	}
 
     return _value;
@@ -106,12 +114,19 @@ ISR(TIMER2_COMPA_vect) {
  * of `micros()` at each point, and then calculate the difference.
  */
 ISR(PCINT1_vect) {
+    static uint8_t counter = 2;
+
     if (USPINREG & USPIN) {
         echo_start = micros();
         echo_end = 0;
     } else {
         echo_end = micros();
         echo_duration = (echo_end - echo_start);
-        measure_valid = true;
+        _acc[counter--] = echo_duration;
+
+        if (!counter) {
+            counter = 2;
+            measure_valid = true;
+        }
     }
 }
