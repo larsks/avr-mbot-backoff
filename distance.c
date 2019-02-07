@@ -40,13 +40,13 @@ timer_t measure_value() {
  * ## Timing diagram
  *
  *     >10uS pulse
- *     |---|
- *     |   |
+ *        |---|
+ *        |   |
  *     ---+   +----
  *
- *     sensor sends ultrasonic pulses
- *     |-| |-| |-| |-| |-| |-| |-| |-|
- *     | | | | | | | | | | | | | | | |
+ *                 sensor sends ultrasonic pulses
+ *                |-| |-| |-| |-| |-| |-| |-| |-|
+ *                | | | | | | | | | | | | | | | |
  *     -----------+ +-+ +-| +-+ +-+ +-+ +-+ +-+ +---
  *
  *
