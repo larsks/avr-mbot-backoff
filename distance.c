@@ -2,8 +2,8 @@
 #include <stdbool.h>
 
 #include <avr/interrupt.h>
-#include <util/atomic.h>
 #include <util/delay.h>
+#include <util/atomic.h>
 
 #include "millis.h"
 #include "distance.h"
@@ -25,26 +25,26 @@ void measure_begin() {
 }
 
 timer_t measure_value() {
-    timer_t _value;
+    timer_t _value = 0;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         _value = echo_duration;
-    }
+	}
 
     return _value;
 }
 
-// fires every 1024us, or approximately every 1 ms.
+
 /**
  *
  * ## Timing diagram
  *
- *     >10uS pulse
+ *        >10uS pulse
  *        |---|
  *        |   |
  *     ---+   +----
  *
- *                 sensor sends ultrasonic pulses
+ *                sensor sends ultrasonic pulses
  *                |-| |-| |-| |-| |-| |-| |-| |-|
  *                | | | | | | | | | | | | | | | |
  *     -----------+ +-+ +-| +-+ +-+ +-+ +-+ +-+ +---
@@ -56,33 +56,20 @@ timer_t measure_value() {
  *
  */
 ISR(TIMER2_COMPA_vect) {
-    static volatile uint8_t state;
-
     if (! t_measure--) {
         t_measure = T_MEASURE_START;
-        state = 1;
-    }
-
-    switch(state) {
-        case 0:
-            break;
-
-        case 1:
-            USDDR |= USPIN;
-            USPORTREG |= USPIN;
-            state = 2;
-            break;
-
-        case 2:
-            USPORTREG &= ~(USPIN);
-            USDDR &= ~(USPIN);
-            state = 0;
-            break;
+        USDDR |= USPIN;
+        USPORTREG |= USPIN;
+        _delay_us(20);
+        USPORTREG &= ~(USPIN);
+        USDDR &= ~(USPIN);
     }
 }
 
 ISR(PCINT1_vect) {
-    if (USPORTREG & USPIN) {
+    static uint8_t counter = 0;
+
+    if (USPINREG & USPIN) {
         echo_start = micros();
         echo_end = 0;
     } else {
