@@ -14,6 +14,7 @@ volatile uint8_t t_measure = T_MEASURE_START;
 volatile timer_t echo_start,
          echo_end,
          echo_duration;
+volatile bool measure_valid = false;
 
 void measure_begin() {
     TIMSK2 |= _BV(OCIE2A);
@@ -67,13 +68,12 @@ ISR(TIMER2_COMPA_vect) {
 }
 
 ISR(PCINT1_vect) {
-    static uint8_t counter = 0;
-
     if (USPINREG & USPIN) {
         echo_start = micros();
         echo_end = 0;
     } else {
         echo_end = micros();
         echo_duration = (echo_end - echo_start);
+        measure_valid = true;
     }
 }
