@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 #include <util/delay.h>
 
 #include "millis.h"
@@ -10,7 +11,9 @@
 #define T_MEASURE_START 100
 
 volatile uint8_t t_measure = T_MEASURE_START;
-volatile timer_t echo_start, echo_end, echo_duration;
+volatile timer_t echo_start,
+         echo_end,
+         echo_duration;
 
 void measure_begin() {
     TIMSK2 |= _BV(OCIE2A);
@@ -19,6 +22,16 @@ void measure_begin() {
     
     PCMSK1 |= _BV(PCINT9);
     PCICR |= _BV(PCIE1);
+}
+
+timer_t measure_value() {
+    timer_t _value;
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        _value = echo_duration;
+    }
+
+    return _value;
 }
 
 // fires every 1024us, or approximately every 1 ms.
