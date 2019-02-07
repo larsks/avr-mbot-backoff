@@ -31,9 +31,11 @@
 #include <stdbool.h>
 
 typedef struct MOTOR {
-    uint8_t  *port,         //!< Port data register to which motor is attached
-             *speed_ocr,    //!< OCR register that manages motor speed
-             dir_pin;       //!< Pin on `port` that manages motor direction
+    volatile uint8_t
+             *port,         //!< Port data register to which motor is attached
+             *speed_ocr;    //!< OCR register that manages motor speed
+
+    uint8_t  dir_pin;       //!< Pin on `port` that manages motor direction
 
     bool     running,       //!< `true` if motor is running
              reversed;      //!< `true` if motor is reversed
@@ -42,7 +44,7 @@ typedef struct MOTOR {
 /**
  * Initialize a new `MOTOR` object
  */
-void motor_new(MOTOR *motor, uint8_t *port, uint8_t *speed_ocr,
+void motor_new(MOTOR *motor, volatile uint8_t *port, volatile uint8_t *speed_ocr,
         uint8_t dir_pin, bool reversed);
 
 /**

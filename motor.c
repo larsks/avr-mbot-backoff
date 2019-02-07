@@ -9,8 +9,8 @@
 #include "motor.h"
 
 void motor_new(MOTOR *motor,
-        uint8_t *port,
-        uint8_t *speed_ocr,
+        volatile uint8_t *port,
+        volatile uint8_t *speed_ocr,
         uint8_t dir_pin,
         bool reversed) {
     motor->port      = port;
