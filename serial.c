@@ -1,6 +1,7 @@
 /**
  * \file serial.c
  */
+#include <stdio.h>
 #include <avr/io.h>
 
 #ifndef BAUD
@@ -10,6 +11,10 @@
 #endif
 
 #include <util/setbaud.h>
+#include "serial.h"
+
+FILE _uart = FDEV_SETUP_STREAM(serial_putchar_f, NULL, _FDEV_SETUP_WRITE);
+FILE *uart = &_uart;
 
 //! Configure uart
 void serial_begin() {
@@ -24,6 +29,14 @@ void serial_begin() {
 void serial_putchar(char c) {
     loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
     UDR0 = c;
+}
+
+int serial_putchar_f(char c, FILE *stream) {
+    if (c == '\n')
+        serial_putchar('\r');
+
+    serial_putchar(c);
+    return 0;
 }
 
 //! Print a string to the serial port
