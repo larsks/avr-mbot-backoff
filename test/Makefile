@@ -24,6 +24,9 @@ ALL_TESTS = $(wildcard test_*.c)
 %.pre: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -E $<
 
+%.s: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -S $<
+
 all: test
 
 test: $(ALL_TESTS:.c=.ok)
