@@ -22,6 +22,8 @@ void serial_begin() {
     UBRR0L = UBRRL_VALUE;
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); // 8-bit data
     UCSR0B = _BV(RXEN0)  | _BV(TXEN0);  // Enable RX and TX
+
+    stdout = stderr = uart;
 }
 
 //! Output a single character. This waits for any in progress transmission
