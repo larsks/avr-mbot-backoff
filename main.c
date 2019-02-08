@@ -87,7 +87,7 @@ int main() {
 
     motor_new(&m1, &MOTORPORT, &MLEFTOCR, MLEFTDIR, false);
     motor_new(&m2, &MOTORPORT, &MRIGHTOCR, MRIGHTDIR, true);
-    pid_new(&pid, PID_P, PID_I, PID_D, 10, 16, true);
+    pid_new(&pid, PID_P, PID_I, PID_D, 50, 16, true);
     pid_set_limits(&pid, -10000, 10000);
 
 	ADMUX |= _BV(REFS0) | _BV(ADLAR) | 0b111;
@@ -116,7 +116,7 @@ int main() {
         }
         last_ADCH = cur_ADCH;
 
-        if (now - last_measure >= 100) {
+        if (now - last_measure >= 20) {
             last_measure = now;
             raw = measure_value();
             output = pid_step(&pid, target, raw);
