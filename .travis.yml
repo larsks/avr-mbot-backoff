@@ -23,10 +23,23 @@ addons:
       - python3-dev
       - libelf-dev
 
+before_install:
+  - mkdir -p -m 700 ~/.ssh
+  - base64 -d > ~/.ssh/id_rsa <<<$GH_DEPLOY_KEY
+  - chmod 400 ~/.ssh/id_rsa
+
 install:
-  - pip3 install --user click setuptools
+  - pip3 install --user click setuptools ghp-import
   - pip3 install --user git+https://github.com/ponty/pysimavr
 
 script:
   - make
   - make -C test
+
+after_success:
+  - git remote set-url --push origin git@github.com:larsks/avr-mbot-backoff
+  - make -C docs
+  - >-
+    make -C docs publish
+    PUSH=1
+    MESSAGE="Update from Travis build $TRAVIS_BUILD_NUMBER ($TRAVIS_COMMIT)"
