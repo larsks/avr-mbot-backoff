@@ -51,7 +51,7 @@ ISR(TIMER2_OVF_vect)
 	timer_overflow_count++;
 }
 
-void init_millis() {
+void millis_begin() {
     TCCR2A = _BV(WGM20) | _BV(WGM21);   // fast pwm mode
     TCCR2B = _BV(CS22);                 // clk/64 prescaler
     TIMSK2 = _BV(TOIE2);

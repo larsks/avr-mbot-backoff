@@ -10,7 +10,7 @@
 int main() {
     serial_begin();
 
-    init_millis();
+    millis_begin();
     sei();
 
     _delay_ms(100);

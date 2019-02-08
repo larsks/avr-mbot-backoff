@@ -9,7 +9,7 @@
 
 typedef uint32_t timer_t;
 
-void init_millis();
+void millis_begin();
 timer_t millis();
 timer_t micros();
 

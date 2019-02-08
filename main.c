@@ -69,7 +69,7 @@ void setup() {
 
     LEDPORTREG |= LEDPIN;
 
-    init_millis();
+    millis_begin();
     measure_begin();
     serial_begin();
 
