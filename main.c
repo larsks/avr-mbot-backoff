@@ -1,3 +1,6 @@
+/**
+ * \file main.c
+ */
 #include <stdio.h>
 #include <stdint.h>
 
@@ -11,13 +14,18 @@
 #include "serial.h"
 #include "FastPID.h"
 
-#define abs(a) \
-    ({ __typeof__ (a) _a = (a); \
+/**
+ * Return the absolute value of a numeric value.  This uses gcc's
+ * [`__auto_type`](https://gcc.gnu.org/onlinedocs/gcc/Typeof.html)
+ * keyword to avoid evaluating `expr` multiple times.
+ */
+#define abs(expr) \
+    ({ __auto_type _a = (expr); \
      _a >= 0 ? _a : (_a * -1); })
 
-#define LEDPINREG PINB
-#define LEDPORTREG PORTB
-#define LEDPIN _BV(PORTB5)
+#define LEDPINREG PINB              //!< LED input register (used for toggling)
+#define LEDPORTREG PORTB            //!< LED port data register
+#define LEDPIN _BV(PORTB5)          //!< LED pin
 
 #define MOTORDDR  (DDRD)            //!< DDR register for motors
 #define MOTORPORT (PORTD)           //!< PORT register for motors
@@ -28,20 +36,35 @@
 #define MLEFTOCR  (OCR0A)           //!< Left motor OCR register
 #define MRIGHTOCR (OCR0B)           //!< Right motor OCR register
 
+//! Configure the mbot to stay this many cm away from obstacles
 #define BACKOFF_DISTANCE_CM 20
 
-MOTOR   m1,
-        m2;
-FastPID pid;
+MOTOR   m1,     //!< Controller for motor 1
+        m2;     //!< Controller for motor 2
+FastPID pid;    //!< PID controller (see <https://github.com/larsks/FastPID/>)
 
 void setup() {
-    //! Configure motor pins as outputs.
+    /**
+     * # Configure motors
+     *
+     * Configure motor pins as outputs (pwm and direction for each
+     * motor).
+     */
     MOTORDDR |= MLEFTDIR | MRIGHTDIR | MLEFTPWM | MRIGHTPWM;
 
-    TCCR0A = _BV(WGM00)  | _BV(WGM01) |  // Enable fast PWM (WGM = 0b011)
-             _BV(COM0A1) | _BV(COM0B1); // Enable PWM output on OC0A and OC0B
+    /**
+     * Enable fast PWM mode on TIMER0 and enable PWM output on
+     * `OC0A` and `OC0B`.
+     */
+    TCCR0A = _BV(WGM00)  | _BV(WGM01) |
+             _BV(COM0A1) | _BV(COM0B1);
 
-    //! Select clk/64 prescaler (CS = 0b011)
+    /**
+     * Configure clk/64 prescaler. The motor PWM frequency is 967Hz.
+     * With the mcu running at 16Mhz, the /64 divider gives us a
+     * frequency of 967.5625Hz (16000000/64/255) which is "close
+     * enough".
+     */
     TCCR0B = _BV(CS01)  | _BV(CS00);
 
     LEDPORTREG |= LEDPIN;
@@ -67,13 +90,7 @@ int main() {
      */
     int16_t target = BACKOFF_DISTANCE_CM * 58;
 
-    /**
-     * The button on an mbot is wired to analog port A7. We can't 
-     * perform digital reads on this port so we need to utilize
-     * the microcontroller's ADC functionality.
-     *
-     * We track the button state in `last_ADCH1` and `cur_ADCH`.
-     */
+    //! Track button state so that we can detect a button press
     uint8_t last_ADCH = 1,
             cur_ADCH;
 
@@ -90,9 +107,34 @@ int main() {
     pid_new(&pid, PID_P, PID_I, PID_D, 50, 16, true);
     pid_set_limits(&pid, -10000, 10000);
 
+    /**
+     * ## Configuring ADMUX
+     *
+     * The button on an mbot is wired to analog port `A7`. We can't 
+     * perform digital reads on this port so we need to utilize
+     * the microcontroller's ADC functionality.
+     *
+     * We configure `ADMUX` for `AREF` connected to 5v, we set `ADLAR`
+     * so that we only need to read `ADCH` to detect a button press,
+     * and we enable ADC on port `A7`.
+     */
 	ADMUX |= _BV(REFS0) | _BV(ADLAR) | 0b111;
+
+    /**
+     * ## Configuring ADCSRA
+     *
+     * The ADC requires an input clock frequency between 50kHz and
+     * 200kHz. Since the mcu is running at 16Mhz, we enable the /128
+     * prescaler by setting `ADPS0|ADPS1|ADPS2`, which gives gives the
+     * ADC a clock frequency of 128kHz.
+     *
+     * We set the `ADEN` bit to enable ADC conversions.
+     */
 	ADCSRA |= _BV(ADEN) | _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2);
 
+    /**
+     * ## Main loop
+     */
     while(1) {
         timer_t now,
                 raw;
@@ -101,21 +143,35 @@ int main() {
 
         now = millis();
 
-        //! Set `ADSC` flag to enable an ADC conversion.
+        /**
+         * Read button state by setting `ADSC` to enable an ADC
+         * conversion, then waiting for the ADC result to become
+         * available.
+         */
 		ADCSRA |= _BV(ADSC);
-
-        //! Wait for ADC value to become available.
 		while ((ADCSRA & _BV(ADSC)));
 
-        //! Record the current ADC result so that we can detect button
-        //! state changes.
+        /**
+         * Record the current ADC result so that we can watch for
+         * high/low state changes.
+         */
         cur_ADCH = ADCH;
+
+        /**
+         * Toggle the `motors_enabled` flag if we detect a low-to-high
+         * transition (i.e., a button release).
+         */
 		if (cur_ADCH && !last_ADCH) {
             LEDPINREG = LEDPIN;
 			motors_enabled = !motors_enabled;
         }
         last_ADCH = cur_ADCH;
 
+        /**
+         * We configured the PID controller with a 50Hz update
+         * frequency, which means we need to take a new measurement
+         * every 20ms.
+         */
         if (now - last_measure >= 20) {
             last_measure = now;
             raw = measure_value();
@@ -137,6 +193,12 @@ int main() {
             if (speed < 10)
                 speed = 0;
 
+            /**
+             * For analysis purposes, during each update of the PID controller
+             * we print out the setpoint, the raw measurement from the
+             * distance sensor, the output of the PID loop, and the
+             * resulting speed.
+             */
             printf("%d ", target);
             printf("%d ", raw);
             printf("%d ", output);
