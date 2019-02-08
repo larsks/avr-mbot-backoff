@@ -15,6 +15,10 @@
     ({ __typeof__ (a) _a = (a); \
      _a >= 0 ? _a : (_a * -1); })
 
+#define LEDPINREG PINB
+#define LEDPORTREG PORTB
+#define LEDPIN _BV(PORTB5)
+
 #define MOTORDDR  (DDRD)            //!< DDR register for motors
 #define MOTORPORT (PORTD)           //!< PORT register for motors
 #define MLEFTDIR  (_BV(PORTD4))     //!< Left motor direction pin
@@ -39,6 +43,8 @@ void setup() {
 
     //! Select clk/64 prescaler (CS = 0b011)
     TCCR0B = _BV(CS01)  | _BV(CS00);
+
+    LEDPORTREG |= LEDPIN;
 
     init_millis();
     measure_begin();
@@ -84,8 +90,6 @@ int main() {
     pid_new(&pid, PID_P, PID_I, PID_D, 10, 16, true);
     pid_set_limits(&pid, -10000, 10000);
 
-    fprintf(uart, "# p=%d, i=%d, d=%d\n", PID_P, PID_I, PID_D);
-
 	ADMUX |= _BV(REFS0) | _BV(ADLAR) | 0b111;
 	ADCSRA |= _BV(ADEN) | _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2);
 
@@ -107,7 +111,7 @@ int main() {
         //! state changes.
         cur_ADCH = ADCH;
 		if (cur_ADCH && !last_ADCH) {
-            fprintf(uart, "toggling motors\n");
+            LEDPINREG = LEDPIN;
 			motors_enabled = !motors_enabled;
         }
         last_ADCH = cur_ADCH;
@@ -133,10 +137,10 @@ int main() {
             if (speed < 10)
                 speed = 0;
 
-            fprintf(uart, "%d,", target);
-            fprintf(uart, "%d,", raw);
-            fprintf(uart, "%d,", output);
-            fprintf(uart, "%u\n", speed);
+            printf("%d ", target);
+            printf("%d ", raw);
+            printf("%d ", output);
+            printf("%u\n", speed);
 
             if (motors_enabled) {
                 if (output > 0) {
