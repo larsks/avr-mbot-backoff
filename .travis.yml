@@ -29,7 +29,8 @@ before_install:
   - chmod 400 ~/.ssh/id_rsa
 
 install:
-  - pip3 install --user click setuptools ghp-import
+  - pip3 install --user setuptools
+  - pip3 install --user click ghp-import
   - pip3 install --user git+https://github.com/ponty/pysimavr
 
 script:
